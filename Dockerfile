@@ -6,10 +6,10 @@
 # Build multi-arch (requiere buildx):
 #   docker buildx create --use --name mininetbuilder   # solo la primera vez
 #   docker buildx build --platform linux/amd64,linux/arm64 \
-#       -t pmanzoni/mininet-in-a-container:latest --push .
+#       -t pmanzoni/containerized-mininet:latest --push .
 #
 # Build local (solo tu arquitectura):
-#   docker build -t mininet-in-a-container .
+#   docker build -t containerized-mininet .
 
 FROM ubuntu:22.04
 

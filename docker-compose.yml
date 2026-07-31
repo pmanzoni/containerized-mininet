@@ -1,6 +1,6 @@
 services:
   mininet:
-    image: pmanzoni/mininet-in-a-container
+    image: pmanzoni/containerized-mininet
     build: .
     stdin_open: true
     tty: true
