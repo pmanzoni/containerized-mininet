@@ -2,7 +2,7 @@
 
 A Docker image for [Mininet](http://mininet.org/), based on
 <https://github.com/iwaseyusuke/docker-mininet>.
-A new version of [mininet-in-a-container](https://github.com/pmanzoni/mininet-in-a-container)
+It is a new version of [mininet-in-a-container](https://github.com/pmanzoni/mininet-in-a-container)
 
 Works on Linux (e.g. Ubuntu, native or in VirtualBox) and on macOS (Intel and
 Apple Silicon). The image is **multi-architecture**: Docker automatically pulls
@@ -110,7 +110,7 @@ Requires Docker Buildx (bundled with modern Docker):
 ```bash
 docker buildx create --use --name mininetbuilder   # first time only
 docker buildx build --platform linux/amd64,linux/arm64 \
-    -t pmanzoni/containerized-mininet:latest --push .
+    -t _DOCKER_USER_/containerized-mininet:latest --push .
 ```
 
 The Mininet release is pinned via the `MININET_TAG` build argument in the
