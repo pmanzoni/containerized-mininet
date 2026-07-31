@@ -1,8 +1,9 @@
 # Mininet in a container
 
-A Docker image for [Mininet](http://mininet.org/), based on this one: https://github.com/iwaseyusuke/docker-mininet.
+A Docker image for [Mininet](http://mininet.org/), based on this one: https://github.com/iwaseyusuke/docker-mininet. 
+A new version of [mininet-in-a-container](https://github.com/pmanzoni/mininet-in-a-container) with the aim of being easier to use and deploy on any system.
 
-It works in Linux-based systems (e.g., Ubuntu native or virtual via VirtualBox); it also works with MacOS.
+It works in Linux-based systems (e.g., Ubuntu native or virtual via VirtualBox); it also works with macOS.
 
 It basically adds these elements:
 * wireshark-qt
