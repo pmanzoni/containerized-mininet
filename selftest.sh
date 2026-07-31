@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# selftest.sh — Autodiagnóstico del contenedor "mininet-in-a-container".
+# selftest.sh — Autodiagnóstico del contenedor "containerized-mininet".
 # Comprueba que todo lo necesario para las sesiones 1 y 2 del laboratorio
 # está presente y funcionando. Ejecuta simplemente:  /selftest.sh
 #
