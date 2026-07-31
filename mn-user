@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# mn-user — arranca Mininet con el datapath de Open vSwitch en ESPACIO DE USUARIO
+# (netdev) y un controlador de referencia en espacio de usuario.
+#
+# Necesario en Docker Desktop (kernel linuxkit) y en cualquier entorno donde el
+# módulo de kernel "openvswitch" no esté disponible. En un Linux nativo con el
+# módulo cargado puedes usar "mn" a secas.
+#
+# Uso: exactamente igual que "mn". Cualquier argumento extra se pasa tal cual.
+#   mn-user
+#   mn-user -x
+#   mn-user --topo tree,2 --test pingall
+#
+exec mn --switch ovsk,datapath=user --controller ovsc "$@"

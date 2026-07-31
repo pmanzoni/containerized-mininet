@@ -1,0 +1,14 @@
+services:
+  mininet:
+    image: pmanzoni/mininet-in-a-container
+    build: .
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: "bridge"
+    environment:
+      # En macOS exporta antes: export DISPLAY=host.docker.internal:0
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /lib/modules:/lib/modules
