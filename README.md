@@ -1,79 +1,152 @@
 # Mininet in a container
 
-A Docker image for [Mininet](http://mininet.org/), based on this one: https://github.com/iwaseyusuke/docker-mininet. 
-A new version of [mininet-in-a-container](https://github.com/pmanzoni/mininet-in-a-container) with the aim of being easier to use and deploy on any system.
+A Docker image for [Mininet](http://mininet.org/), based on
+<https://github.com/iwaseyusuke/docker-mininet>.
 
-It works in Linux-based systems (e.g., Ubuntu native or virtual via VirtualBox); it also works with macOS.
+Works on Linux (e.g. Ubuntu, native or in VirtualBox) and on macOS (Intel and
+Apple Silicon). The image is **multi-architecture**: Docker automatically pulls
+the right variant (amd64 / arm64) for your machine, so there is a single tag and
+no need to choose a CPU-specific one.
 
-It basically adds these elements:
+It adds to the base image:
+
 * wireshark-qt
 * wget
-* python-tk (for miniedit.py)
+* python3-tk (for `miniedit.py`)
 * git
+* a `selftest.sh` self-diagnostic script
 
-and the download of the Mininet source code:
-* https://github.com/mininet/mininet
+and clones the Mininet source code (pinned to a fixed release for
+reproducibility): <https://github.com/mininet/mininet>
 
+---
 
-## Docker *build* Command
-To build the image locally you can use:
+## Running the prebuilt image
+
+The same command works on every platform. Docker selects amd64 or arm64
+automatically.
+
+### Linux
 
 ```bash
-docker build -t mininet-in-a-container . 
-```
-
-### run command for a Unix machine:
-```bash
+xhost +local:                      # allow the container to open X windows
 docker run -it --rm --privileged -e DISPLAY \
-             -v /tmp/.X11-unix:/tmp/.X11-unix \
-             -v /lib/modules:/lib/modules \
-             --name mininet mininet-in-a-container
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /lib/modules:/lib/modules \
+    --name mininet pmanzoni/mininet-in-a-container
 ```
 
-### run command for MacOS: 
-```bash
-docker run -it --rm --privileged -e DISPLAY \
-      --env="DISPLAY=host.docker.internal:0" \
-      -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-      -v /lib/modules:/lib/modules \
-      --name mininet mininet-in-a-container
-```
+### macOS (Intel or Apple Silicon)
 
-
-
-
-## Using the prebuilt image "pmanzoni/mininet-in-a-container"
-
-### **run command for a Unix machine:**
+Install and open **XQuartz** first. In XQuartz → Preferences → Security, enable
+*"Allow connections from network clients"*.
 
 ```bash
-docker run -it --rm --privileged -e DISPLAY \
-             -v /tmp/.X11-unix:/tmp/.X11-unix \
-             -v /lib/modules:/lib/modules \
-             --name mininet pmanzoni/mininet-in-a-container:amd64
-```
-
-### **run command for MacOS (CPU Intel):**
-
-```bash
-docker run -it --rm --privileged -e DISPLAY \
-      --env="DISPLAY=host.docker.internal:0" \
-      -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-      -v /lib/modules:/lib/modules \
-      --name mininet pmanzoni/mininet-in-a-container:amd64
-```
-
-### **run command for MacOS (CPU M1/M2/M3…):**
-
-```bash
-docker run -it --rm --privileged -e DISPLAY \
-      --env="DISPLAY=host.docker.internal:0" \
-      -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-      -v /lib/modules:/lib/modules \
-      --name mininet pmanzoni/mininet-in-a-container:arm64
-```
-
-# Linux:
-xhost +local:
-# macOS (con XQuartz abierto y "Allow network clients" activo):
 xhost + 127.0.0.1
+export DISPLAY=host.docker.internal:0
+docker run -it --rm --privileged \
+    --env="DISPLAY=host.docker.internal:0" \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    -v /lib/modules:/lib/modules \
+    --name mininet pmanzoni/mininet-in-a-container
+```
+
+> **Note on `/lib/modules`:** this path only exists on Linux. On macOS the mount
+> is harmless and simply ignored — Open vSwitch runs in user space inside the
+> container.
+
+---
+
+## Starting Mininet
+
+Once you are at the container prompt, how you start Mininet depends on the host:
+
+**On Docker Desktop (macOS, or Windows/WSL, or Docker Desktop on Linux)** the
+lightweight `linuxkit` kernel has no `openvswitch` kernel module, so switches
+must use the **user-space datapath**. Use the provided wrapper:
+
+```bash
+mn-user           # = mn --switch ovsk,datapath=user --controller ovsc
+mn-user -x        # same, opening xterm windows
+```
+
+**On native Linux** with the `openvswitch` module available, plain `mn` works:
+
+```bash
+mn -x
+```
+
+If plain `mn` hangs at `*** Starting 1 switches`, you are on a module-less
+kernel — use `mn-user` instead.
+
+---
+
+## Checking your setup
+
+Inside the container, run the self-diagnostic:
+
+```bash
+/selftest.sh
+```
+
+It verifies Open vSwitch (both daemons), Mininet, the required tools and the X
+connection, and prints hints for anything that fails.
+
+---
+
+## Building the image yourself
+
+### Local build (your architecture only)
+
+```bash
+docker build -t mininet-in-a-container .
+```
+
+### Multi-architecture build (amd64 + arm64)
+
+Requires Docker Buildx (bundled with modern Docker):
+
+```bash
+docker buildx create --use --name mininetbuilder   # first time only
+docker buildx build --platform linux/amd64,linux/arm64 \
+    -t pmanzoni/mininet-in-a-container:latest --push .
+```
+
+The Mininet release is pinned via the `MININET_TAG` build argument in the
+`Dockerfile`; change it there (or with `--build-arg MININET_TAG=...`) to use a
+different version.
+
+---
+
+## Troubleshooting
+
+**`mn` hangs at `*** Starting 1 switches`**
+You are on a kernel without the `openvswitch` module (typical on Docker
+Desktop). Use `mn-user` instead of `mn`. The container starts both OVS daemons
+(`ovsdb-server` and `ovs-vswitchd`) automatically and switches use the
+user-space datapath.
+
+**Using docker compose (either platform)**
+```bash
+# Linux:  xhost +local:
+# macOS:  xhost + 127.0.0.1  &&  export DISPLAY=host.docker.internal:0
+docker compose run --rm mininet
+```
+
+**`xhost: unable to open display` / `Can't open display`**
+Run `export DISPLAY=:0` (Linux) or `export DISPLAY=host.docker.internal:0`
+(macOS) before launching, and make sure you granted access with `xhost` on the
+**host** (not inside the container). On macOS, do **not** also pass a bare
+`-e DISPLAY` in `docker run` — it injects the Mac's launchd display path and
+breaks X. Use only `--env="DISPLAY=host.docker.internal:0"`.
+
+**macOS: `xrdb: Resource temporarily unavailable`**
+In XQuartz → Preferences → Security either uncheck *"Authenticate connections"*,
+or keep it checked and run `xhost + 127.0.0.1`.
+
+**Linux: X windows still don't appear**
+Try `xhost +` on the host and `export DISPLAY=host.docker.internal:0` inside the
+container. On Linux prefer **Docker Engine (CE)** over Docker Desktop.
+
+**`*** Error setting resource limits ...`**
+Harmless; Mininet still works.
