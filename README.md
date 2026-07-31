@@ -2,6 +2,7 @@
 
 A Docker image for [Mininet](http://mininet.org/), based on
 <https://github.com/iwaseyusuke/docker-mininet>.
+A new version of [mininet-in-a-container](https://github.com/pmanzoni/mininet-in-a-container)
 
 Works on Linux (e.g. Ubuntu, native or in VirtualBox) and on macOS (Intel and
 Apple Silicon). The image is **multi-architecture**: Docker automatically pulls
@@ -33,7 +34,7 @@ xhost +local:                      # allow the container to open X windows
 docker run -it --rm --privileged -e DISPLAY \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v /lib/modules:/lib/modules \
-    --name mininet pmanzoni/mininet-in-a-container
+    --name mininet pmanzoni/containerized-mininet
 ```
 
 ### macOS (Intel or Apple Silicon)
@@ -48,7 +49,7 @@ docker run -it --rm --privileged \
     --env="DISPLAY=host.docker.internal:0" \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v /lib/modules:/lib/modules \
-    --name mininet pmanzoni/mininet-in-a-container
+    --name mininet pmanzoni/containerized-mininet
 ```
 
 > **Note on `/lib/modules`:** this path only exists on Linux. On macOS the mount
@@ -99,7 +100,7 @@ connection, and prints hints for anything that fails.
 ### Local build (your architecture only)
 
 ```bash
-docker build -t mininet-in-a-container .
+docker build -t containerized-mininet .
 ```
 
 ### Multi-architecture build (amd64 + arm64)
@@ -109,7 +110,7 @@ Requires Docker Buildx (bundled with modern Docker):
 ```bash
 docker buildx create --use --name mininetbuilder   # first time only
 docker buildx build --platform linux/amd64,linux/arm64 \
-    -t pmanzoni/mininet-in-a-container:latest --push .
+    -t pmanzoni/containerized-mininet:latest --push .
 ```
 
 The Mininet release is pinned via the `MININET_TAG` build argument in the
