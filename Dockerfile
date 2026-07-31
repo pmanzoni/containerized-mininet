@@ -13,9 +13,9 @@
 
 FROM ubuntu:22.04
 
-LABEL org.opencontainers.image.title="mininet-in-a-container" \
+LABEL org.opencontainers.image.title="containerized-mininet" \
       org.opencontainers.image.description="Mininet + Open vSwitch + Wireshark para prácticas de SDN" \
-      org.opencontainers.image.source="https://github.com/pmanzoni/mininet-in-a-container" \
+      org.opencontainers.image.source="https://github.com/pmanzoni/containerized-mininet" \
       org.opencontainers.image.licenses="Apache-2.0"
 
 USER root
