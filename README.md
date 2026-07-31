@@ -120,11 +120,9 @@ different version.
 
 ## Troubleshooting
 
-**`mn` hangs at `*** Starting 1 switches`**
-You are on a kernel without the `openvswitch` module (typical on Docker
-Desktop). Use `mn-user` instead of `mn`. The container starts both OVS daemons
-(`ovsdb-server` and `ovs-vswitchd`) automatically and switches use the
-user-space datapath.
+Most container-side problems (Open vSwitch not starting, switches hanging) are
+handled automatically now. The remaining issues are all **host-side** — things
+the image cannot fix for you because they depend on your machine's X server.
 
 **Using docker compose (either platform)**
 ```bash
@@ -134,11 +132,11 @@ docker compose run --rm mininet
 ```
 
 **`xhost: unable to open display` / `Can't open display`**
-Run `export DISPLAY=:0` (Linux) or `export DISPLAY=host.docker.internal:0`
-(macOS) before launching, and make sure you granted access with `xhost` on the
-**host** (not inside the container). On macOS, do **not** also pass a bare
-`-e DISPLAY` in `docker run` — it injects the Mac's launchd display path and
-breaks X. Use only `--env="DISPLAY=host.docker.internal:0"`.
+Grant access with `xhost` on the **host** (not inside the container), and set
+`export DISPLAY=:0` (Linux) or `export DISPLAY=host.docker.internal:0` (macOS).
+On macOS, do **not** also pass a bare `-e DISPLAY` in `docker run` — it injects
+the Mac's launchd display path and breaks X. Use only
+`--env="DISPLAY=host.docker.internal:0"`.
 
 **macOS: `xrdb: Resource temporarily unavailable`**
 In XQuartz → Preferences → Security either uncheck *"Authenticate connections"*,
